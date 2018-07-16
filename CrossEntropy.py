@@ -3,13 +3,14 @@ import torch.nn.functional as F
 
 
 def CrossEntropy(input, target):
-    m = target.shape[0]
-    max_val = (-input).clamp(min=0)
-    loss = input - input * torch.Tensor([range(m), target]) + max_val + ((-max_val).exp() + (-input - max_val).exp()).log()
-    return loss.mean()
+    exps = []
+    for i in input:
+        exps.append(i - i.max() - (((i - i.max()).exp()).sum() + 0.00001).log())
+    print(torch.stack(exps))
+    return F.nll_loss(torch.stack(exps), target)
 
 
-o = torch.Tensor([[200., -200.], [400., -400.]])
+o = torch.Tensor([[100., -100.], [400., -400.]])
 
 t = torch.Tensor([1, 1]).to(torch.long)
 
